@@ -1,0 +1,154 @@
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Банковская карточка</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    .form-group { margin-bottom: 10px; }
+    .card-preview {
+      border: 2px solid black;
+      border-radius: 10px;
+      width: 300px;
+      padding: 20px;
+      margin-left: 20px;
+    }
+    .form-and-preview { display: flex; align-items: flex-start; }
+    table, td, th {
+      border: 1px solid purple;
+      border-collapse: collapse;
+      padding: 5px;
+    }
+    table { margin-top: 20px; }
+    th { background: #f0f0f0; }
+    input, select, button {
+      padding: 5px;
+      font-size: 14px;
+      width: 200px;
+    }
+    button { width: 210px; cursor: pointer; }
+  </style>
+</head>
+<body>
+
+<h2>Форма банковской карточки</h2>
+
+<div class="form-and-preview">
+  <form id="cardForm">
+    <div class="form-group">
+      <input type="text" id="bankName" placeholder="Название банка">
+    </div>
+    <div class="form-group">
+      <select id="paymentSystem">
+        <option value="">Тип платежной системы</option>
+        <option value="VISA">VISA</option>
+        <option value="MasterCard">MasterCard</option>
+        <option value="МИР">МИР</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <input type="text" id="cardNumber" placeholder="Номер карты (16 цифр)" maxlength="16">
+    </div>
+    <div class="form-group">
+      <input type="text" id="cardHolder" placeholder="Имя держателя">
+    </div>
+    <div class="form-group">
+      <input type="month" id="expiryDate">
+    </div>
+    <button type="submit">Добавить</button>
+  </form>
+
+  <div class="card-preview" id="cardPreview">
+    <div id="previewBankName">[Банк]</div>
+    <div id="previewCardNumber">0000 0000 0000 0000</div>
+    <div style="margin: 10px 0;">
+      <span id="previewCardHolder">Имя Фамилия</span>
+      <span style="float: right;" id="previewExpiry">MM/YY</span>
+    </div>
+    <div id="previewPaymentSystem">[Тип]</div>
+  </div>
+</div>
+
+<h3>Список карт</h3>
+<table id="cardTable">
+  <tr>
+    <th>Банк</th>
+    <th>Платёжная система</th>
+    <th>Номер карты</th>
+    <th>Держатель</th>
+    <th>Срок действия</th>
+  </tr>
+</table>
+
+<script>
+  const form = document.getElementById('cardForm');
+
+  const bankNameInput = document.getElementById('bankName');
+  const paymentSystemSelect = document.getElementById('paymentSystem');
+  const cardNumberInput = document.getElementById('cardNumber');
+  const cardHolderInput = document.getElementById('cardHolder');
+  const expiryDateInput = document.getElementById('expiryDate');
+
+  const previewBankName = document.getElementById('previewBankName');
+  const previewCardNumber = document.getElementById('previewCardNumber');
+  const previewCardHolder = document.getElementById('previewCardHolder');
+  const previewExpiry = document.getElementById('previewExpiry');
+  const previewPaymentSystem = document.getElementById('previewPaymentSystem');
+
+  const cardTable = document.getElementById('cardTable');
+
+  bankNameInput.addEventListener('input', () => {
+    previewBankName.textContent = bankNameInput.value || '[Банк]';
+  });
+
+  paymentSystemSelect.addEventListener('change', () => {
+    previewPaymentSystem.textContent = paymentSystemSelect.value || '[Тип]';
+  });
+
+  cardNumberInput.addEventListener('input', () => {
+    let val = cardNumberInput.value.replace(/\D/g, '').slice(0,16);
+    cardNumberInput.value = val;
+    let formatted = val.replace(/(\d{4})(?=\d)/g, '$1 ');
+    previewCardNumber.textContent = formatted.padEnd(19, '0');
+  });
+
+  cardHolderInput.addEventListener('input', () => {
+    previewCardHolder.textContent = cardHolderInput.value || 'Имя Фамилия';
+  });
+
+  expiryDateInput.addEventListener('input', () => {
+    if (expiryDateInput.value) {
+      const [year, month] = expiryDateInput.value.split("-");
+      previewExpiry.textContent = `${month}/${year.slice(2)}`;
+    } else {
+      previewExpiry.textContent = 'MM/YY';
+    }
+  });
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    if (!bankNameInput.value || !paymentSystemSelect.value || cardNumberInput.value.length < 16 || !cardHolderInput.value || !expiryDateInput.value) {
+      alert("Заполните все поля корректно!");
+      return;
+    }
+
+    const row = cardTable.insertRow();
+    row.insertCell().textContent = bankNameInput.value;
+    row.insertCell().textContent = paymentSystemSelect.value;
+    row.insertCell().textContent = cardNumberInput.value.replace(/(\d{4})(?=\d)/g, '$1 ');
+    row.insertCell().textContent = cardHolderInput.value;
+    const [year, month] = expiryDateInput.value.split("-");
+    row.insertCell().textContent = `${month}/${year.slice(2)}`;
+
+    form.reset();
+    previewBankName.textContent = '[Банк]';
+    previewCardNumber.textContent = '0000 0000 0000 0000';
+    previewCardHolder.textContent = 'Имя Фамилия';
+    previewExpiry.textContent = 'MM/YY';
+    previewPaymentSystem.textContent = '[Тип]';
+  });
+</script>
+
+</body>
+</html>
